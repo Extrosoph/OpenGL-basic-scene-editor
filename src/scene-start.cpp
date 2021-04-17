@@ -721,7 +721,8 @@ void reshape(int width, int height) {
         projection = Frustum(-nearDist * (float)width/(float)height,
                               nearDist * (float)width/(float)height,
                              -nearDist,
-                              nearDist, nearDist, 100.0);
+                              nearDist,
+                              nearDist, 100.0);
     }
 
     else{
