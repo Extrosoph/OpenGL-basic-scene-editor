@@ -372,9 +372,12 @@ void drawMesh(SceneObject sceneObj) {
     // Set the model matrix - this should combine translation, rotation and scaling based on what's
     // in the sceneObj structure (see near the top of the program).
 
-    /*	Part B
-    *	Object Rotation
-    *	NOTE: Multiplication calculations are performed from RIGHT to LEFT
+    /* Part B with Same Rotation Method:
+    * Rotate the object around all axis
+    * 1. Hold the left mouse button and moves the mouse right or left will rotate the object around the y-axis.
+    * 2. Hold the left mouse button and moves the mouse up or down will rotate the object along the x-axis.
+    * 3. Hold down the scroll wheel and move the mouse left and right will rotate the object along the z-axis.
+    * 4. Not sure about the texture scale.
     */
 
     mat4 rotate = RotateZ(sceneObj.angles[2]) * RotateY(sceneObj.angles[1]) * RotateX(sceneObj.angles[0]);
@@ -473,16 +476,22 @@ static void groundMenu(int id) {
 }
 
 
-/*	Part C
-*	Adding function to adjust Ambient and Diffuse levels
+/* Part C
+* Function to adject the ambient or diffuse light of object
+* Param is a vector object with 2 values [value1, value2]
+* Those value will increase when holding the left mouse and moving the mouse up or to the right.
+* Those values will decrease when holding the left mouse button and moving the mouse left or down.
 */
 static void adjustAmbientDiffuse(vec2 ad){
 	sceneObjs[toolObj].ambient += ad[0];
 	sceneObjs[toolObj].diffuse += ad[1];
 }
 
-/*	(Part C)
-*	Adding function to adjust Specular and Shine levels
+/*
+* Function to adjust the specular and amount of shine
+* Param is a vector object with 2 values [value1, value2]
+* Those value will increase when holding the left mouse and moving the mouse up or to the right.
+* Those values will decrease when holding the left mouse button and moving the mouse left or down.
 */
 
 static void adjustSpecularShine(vec2 ss){
@@ -551,10 +560,17 @@ static void materialMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1, 0, 0, 1),
                          adjustBlueBrightness, mat2(1, 0, 0, 1));
     }
-        // You'll need to fill in the remaining menu items here.
+    // You'll need to fill in the remaining menu items here.
 
-    /*	PART C
-    *	Modify Material Menu - Ambient/Diffuse/Specular/Shine
+    /* PART C
+    * Added a call to a tool object and when the referred id is called it will call the function.
+    * We use the function setToolCallbacks to refer to the required function menu.
+    * The function is called by: setToolCallbacks(functioName1, matrix(2*2): |1, 0| , funcationName2, |1, 0| )
+    *                                                                        |0, 1|                   |0, 1|
+    * The matrices are used to scale and rotate the effect of the mouse movement vector* from project page.
+    * We are also able to move the position of the light source.
+    * Hold left mouse button and move them in all 4 directions will move the light source in the x and z axis.
+    * Hold down the scroll wheel and move the mouse vertically will move the light source in the y-axis.
     */
     else if(id == 20){
 		toolObj = currObject;
@@ -598,7 +614,8 @@ static void makeMenu() {
     glutAddMenuEntry("R/G/B/All", 10);
 
     /* Part C
-    *	Modify makeMenu function - Ambient/Diffuse/Specular/Shine
+    * Added a menu entry using the glutAddMenuEntry(menuName, menuId) function.
+    * The menuId is set from materialMenu.
     */
     glutAddMenuEntry("Ambient/Diffuse/Specular/Shine",20);
 
@@ -685,12 +702,35 @@ void reshape(int width, int height) {
     //         that the same part of the scene is visible across the width of
     //         the window.
 
-    GLfloat nearDist = 0.2;
-    projection = Frustum(-nearDist * (float) width / (float) height,
-                         nearDist * (float) width / (float) height,
-                         -nearDist, nearDist,
-                         nearDist, 100.0);
-}
+    /* Part D
+    * To fix the clipping of the triangles to show a better close up view
+    * we decrease the nearDist to a smaller value.
+    */
+
+    GLfloat nearDist = 0.050;
+
+    /*	Part E
+    * We fix the rezising of the window by checking if height is more than width.
+    * Frustum(left, right, bottom, top), The parameters are the size of window is the referred side.
+    * If height > width then we change the left and right side projection using Frustum() function.
+    * If height < width then we change the bottom and top projection using the smae function as previous.
+    */
+
+
+    if(width > height){
+        projection = Frustum(-nearDist * (float)width/(float)height,
+                              nearDist * (float)width/(float)height,
+                             -nearDist,
+                              nearDist, nearDist, 100.0);
+    }
+
+    else{
+        projection = Frustum(-nearDist,
+                              nearDist,
+                             -nearDist * (float)height/(float)width,
+                             nearDist * (float)height/(float)width,
+                             nearDist, 100.0);
+    }
 
 //----------------------------------------------------------------------------
 
