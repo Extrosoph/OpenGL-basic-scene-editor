@@ -222,7 +222,7 @@ mat2 camRotZ() {
 //------callback functions for doRotate below and later-----------------------
 
 static void adjustCamrotsideViewdist(vec2 cv) {
-    cout << cv << endl;
+    // cout << cv << endl;
     camRotSidewaysDeg += cv[0];
     viewDist += cv[1];
 }
@@ -380,8 +380,14 @@ void drawMesh(SceneObject sceneObj) {
     * 4. Not sure about the texture scale.
     */
 
-    mat4 rotate = RotateZ(sceneObj.angles[2]) * RotateY(sceneObj.angles[1]) * RotateX(sceneObj.angles[0]);
-    mat4 model = Translate(sceneObj.loc) * rotate * Scale(sceneObj.scale);
+    // Rotating the model by using built in function specified in mat.h which refers to lab 5.
+    // Here we use object slicing and swizzling which uses the indexing of array using [] and selection (.) operator refer to lecture 5 pg 30.
+    // each object has angles for x,y,z and we use the rotation matrix from mat.h to transform at each specific angle.
+    // angle[0] is x, angle[1] is y and angle[2] is z
+    // Order of transformation does not matter
+
+    mat4 rotate = RotateX(sceneObj.angles[0]) *  RotateY(sceneObj.angles[1]) * RotateZ(sceneObj.angles[2]);
+    mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale) * rotate;
 
 
     // Set the model-view matrix for the shaders
@@ -424,9 +430,13 @@ void display(void) {
     5. Hold the scroll wheel and move the mouse left or right will rotate the viewport/camera over the x-axis
     with respect to the center of field.
     */
-    mat4 rotateY = RotateY(camRotSidewaysDeg); // Rotate viewport/camera on y-axis
-    mat4 rotateX = RotateX(camRotUpAndOverDeg); // Rotate viewport/camera on xz-axis
-    view = Translate(0.0, 0.0, -viewDist) * rotateX * rotateY;
+
+    // Using rotation matrix generator from mat.h refer to lab 5
+    // Those functions creates a rotation matrix which was show in lab 3, Q.2 but turned into a 4*4 matrix.
+    // Here order of transformation does not matter.
+    mat4 rotateY = RotateY(camRotSidewaysDeg); // Adds the Y rotation
+    mat4 rotateX = RotateX(camRotUpAndOverDeg); // Adds the X rotations
+    view = rotateY * Translate(0.0, 0.0, -viewDist) * rotateX; //Multiply to the viewport variable to change the view of angle
 
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc;
@@ -475,13 +485,31 @@ static void groundMenu(int id) {
     glutPostRedisplay();
 }
 
+static void adjustBrightnessY(vec2 by) {
+    sceneObjs[toolObj].brightness += by[0];
+    sceneObjs[toolObj].loc[1] += by[1];
+}
+
+static void adjustRedGreen(vec2 rg) {
+    sceneObjs[toolObj].rgb[0] += rg[0];
+    sceneObjs[toolObj].rgb[1] += rg[1];
+}
+
+static void adjustBlueBrightness(vec2 bl_br) {
+    sceneObjs[toolObj].rgb[2] += bl_br[0];
+    sceneObjs[toolObj].brightness += bl_br[1];
+}
 
 /* Part C
+* To understand the fundemental of lighting we used: https://learnopengl.com/Lighting/Basic-Lighting.
+* Here we also use swizzling from lecture 5 pg 30  to obtains the values required to change for both functions
+* We also followed the styling of parameters from previous functions
 * Function to adject the ambient or diffuse light of object
 * Param is a vector object with 2 values [value1, value2]
 * Those value will increase when holding the left mouse and moving the mouse up or to the right.
 * Those values will decrease when holding the left mouse button and moving the mouse left or down.
 */
+
 static void adjustAmbientDiffuse(vec2 ad){
 	sceneObjs[toolObj].ambient += ad[0];
 	sceneObjs[toolObj].diffuse += ad[1];
@@ -497,21 +525,6 @@ static void adjustAmbientDiffuse(vec2 ad){
 static void adjustSpecularShine(vec2 ss){
 	sceneObjs[toolObj].specular += ss[0];
 	sceneObjs[toolObj].shine += ss[1];
-}
-
-static void adjustBrightnessY(vec2 by) {
-    sceneObjs[toolObj].brightness += by[0];
-    sceneObjs[toolObj].loc[1] += by[1];
-}
-
-static void adjustRedGreen(vec2 rg) {
-    sceneObjs[toolObj].rgb[0] += rg[0];
-    sceneObjs[toolObj].rgb[1] += rg[1];
-}
-
-static void adjustBlueBrightness(vec2 bl_br) {
-    sceneObjs[toolObj].rgb[2] += bl_br[0];
-    sceneObjs[toolObj].brightness += bl_br[1];
 }
 
 static void lightMenu(int id) {
@@ -704,16 +717,20 @@ void reshape(int width, int height) {
 
     /* Part D
     * To fix the clipping of the triangles to show a better close up view
-    * we decrease the nearDist to a smaller value.
+    * we decrease the nearDist to a smaller value as the default value was 0.2.
+    * The smaller the unit the more detail it will have when viewed closer to the mesh.
+    * Refer to lab 5 Q.2 to the default nearDist value.
     */
 
     GLfloat nearDist = 0.050;
 
-    /*	Part E
+    /* Part E
     * We fix the rezising of the window by checking if height is more than width.
     * Frustum(left, right, bottom, top), The parameters are the size of window is the referred side.
     * If height > width then we change the left and right side projection using Frustum() function.
     * If height < width then we change the bottom and top projection using the smae function as previous.
+    * refer to lab 5 Q.2 for more details in the function used.
+    *
     */
 
 
