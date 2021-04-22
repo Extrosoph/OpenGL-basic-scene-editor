@@ -44,15 +44,24 @@ void main()
 	specular = vec3(0.0, 0.0, 0.0);
     }
 
-    // Part F
 
     // globalAmbient is independent of distance from the light source
     vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
 
-    float lightDist = 0.05 + length(Lvec);
-    //Before color.rgb = globalAmbient  + ambient + diffuse + specular;
-    //After color.rgb = globalAmbient + ((ambient + diffuse) / lightDist) + specular;
-    color.rgb = globalAmbient + ((ambient + diffuse) / lightDist) + specular;
+    /* Part F
+    * Here we needed to add attenuation.
+    * Here we needed to calculate the length of the light vector using length() to calculate d
+    * Then we follow the formula 1.0/(1.0+c1*d+c2*d^2) where d is the distance between the
+    * lightsource and the fragment, c1 and c2 are a constant variable that will affect the attenuation factor
+    * refer to http://learnwebgl.brown37.net/09_lights/lights_attenuation.html for the formula.
+    */
+
+    float d = length(Lvec);
+    float c1 = 0.01;
+    float c2 = 0.05;
+    float attenuation = 1.0 / (1.0 + (c1 * d) + c2 * (d*d));
+
+    color.rgb = globalAmbient + ((ambient + diffuse  + specular) * attenuation);
 	color.a = 1.0;
 
     gl_Position = Projection * ModelView * vpos;
