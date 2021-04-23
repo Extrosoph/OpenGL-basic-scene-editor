@@ -433,10 +433,10 @@ void display(void) {
 
     // Using rotation matrix generator from mat.h refer to lab 5
     // Those functions creates a rotation matrix which was show in lab 3, Q.2 but turned into a 4*4 matrix.
-    // Here order of transformation does not matter.
+    // Here order of transformation does matter.
     mat4 rotateY = RotateY(camRotSidewaysDeg); // Adds the Y rotation
     mat4 rotateX = RotateX(camRotUpAndOverDeg); // Adds the X rotations
-    view = rotateY * Translate(0.0, 0.0, -viewDist) * rotateX; //Multiply to the viewport variable to change the view of angle
+    view = Translate(0.0, 0.0, -viewDist) * rotateX * rotateY; //Multiply to the viewport variable to change the view of angle
 
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc;
@@ -749,6 +749,7 @@ void reshape(int width, int height) {
                              nearDist * (float)height/(float)width,
                              nearDist, 100.0);
     }
+}
 
 //----------------------------------------------------------------------------
 
