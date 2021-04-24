@@ -432,6 +432,7 @@ void display(void) {
     */
 
     // Using rotation matrix generator from mat.h refer to lab 5
+    // The rotation is based from Lecture 14 page 8-9
     // Those functions creates a rotation matrix which was show in lab 3, Q.2 but turned into a 4*4 matrix.
     // Here order of transformation does matter.
     mat4 rotateY = RotateY(camRotSidewaysDeg); // Adds the Y rotation
@@ -504,23 +505,15 @@ static void adjustBlueBrightness(vec2 bl_br) {
 * To understand the fundemental of lighting we used: https://learnopengl.com/Lighting/Basic-Lighting.
 * Here we also use swizzling from lecture 5 pg 30  to obtains the values required to change for both functions
 * We also followed the styling of parameters from previous functions
-* Function to adject the ambient or diffuse light of object
-* Param is a vector object with 2 values [value1, value2]
-* Those value will increase when holding the left mouse and moving the mouse up or to the right.
-* Those values will decrease when holding the left mouse button and moving the mouse left or down.
+* Here we set the two function one to bind to the left mouse button and the second for the middle mouse buttons
+* We adjust ambient and diffuse with left mouse button and specular and shine with the middle mouse button
 */
 
 static void adjustAmbientDiffuse(vec2 ad){
 	sceneObjs[toolObj].ambient += ad[0];
-	sceneObjs[toolObj].diffuse += ad[1];
-}
+    sceneObjs[toolObj].diffuse += ad[1];
 
-/*
-* Function to adjust the specular and amount of shine
-* Param is a vector object with 2 values [value1, value2]
-* Those value will increase when holding the left mouse and moving the mouse up or to the right.
-* Those values will decrease when holding the left mouse button and moving the mouse left or down.
-*/
+}
 
 static void adjustSpecularShine(vec2 ss){
 	sceneObjs[toolObj].specular += ss[0];
@@ -585,6 +578,7 @@ static void materialMenu(int id) {
     * Hold left mouse button and move them in all 4 directions will move the light source in the x and z axis.
     * Hold down the scroll wheel and move the mouse vertically will move the light source in the y-axis.
     */
+
     else if(id == 20){
 		toolObj = currObject;
 		setToolCallbacks(adjustAmbientDiffuse, mat2(1, 0, 0, 1), adjustSpecularShine, mat2(1, 0, 0, 1));
@@ -630,7 +624,7 @@ static void makeMenu() {
     * Added a menu entry using the glutAddMenuEntry(menuName, menuId) function.
     * The menuId is set from materialMenu.
     */
-    glutAddMenuEntry("Ambient/Diffuse/Specular/Shine",20);
+    glutAddMenuEntry("Ambient/Diffuse/Specular/Shine", 20);
 
     int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
     int groundMenuId = createArrayMenu(numTextures, textureMenuEntries, groundMenu);
