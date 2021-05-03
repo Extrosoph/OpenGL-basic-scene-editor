@@ -3,67 +3,31 @@ attribute vec3 vNormal;
 attribute vec2 vTexCoord;
 
 varying vec2 texCoord;
-varying vec4 color;
+varying vec3 position;
+varying vec3 normal;
 
-uniform vec3 AmbientProduct, DiffuseProduct, SpecularProduct;
+varying vec3 fN;
+varying vec3 fV;
+varying vec3 fL;
+
 uniform mat4 ModelView;
-uniform mat4 Projection;
 uniform vec4 LightPosition;
-uniform float Shininess;
+uniform mat4 Projection;
 
 void main()
 {
-    vec4 vpos = vec4(vPosition, 1.0);
+    fN = (ModelView * vec4(vNormal, 0.0)).xyz;
+    fV = -(ModelView * vec4(vPosition, 0.0)).xyz;
+    fL = LightPosition.xyz - (ModelView * vec4(vPosition, 0.0)).xyz;
 
-    // Transform vertex position into eye coordinates
-    vec3 pos = (ModelView * vpos).xyz;
-
-
-    // The vector to the light from the vertex
-    vec3 Lvec = LightPosition.xyz - pos;
-
-    // Unit direction vectors for Blinn-Phong shading calculation
-    vec3 L = normalize( Lvec );   // Direction to the light source
-    vec3 E = normalize( -pos );   // Direction to the eye/camera
-    vec3 H = normalize( L + E );  // Halfway vector
-
-    // Transform vertex normal into eye coordinates (assumes scaling
-    // is uniform across dimensions)
-    vec3 N = normalize( (ModelView*vec4(vNormal, 0.0)).xyz );
-
-    // Compute terms in the illumination equation
-    vec3 ambient = AmbientProduct;
-
-    float Kd = max( dot(L, N), 0.0 );
-    vec3  diffuse = Kd*DiffuseProduct;
-
-    float Ks = pow( max(dot(N, H), 0.0), Shininess );
-    vec3  specular = Ks * SpecularProduct;
-
-    if (dot(L, N) < 0.0 ) {
-	specular = vec3(0.0, 0.0, 0.0);
-    }
-
-
-    // globalAmbient is independent of distance from the light source
-    vec3 globalAmbient = vec3(0.1, 0.1, 0.1);
-
-    /* Part F
-    * Here we needed to add attenuation.
-    * Here we needed to calculate the length of the light vector using length() to calculate d
-    * Then we follow the formula 1.0/(1.0+c1*d+c2*d^2) where d is the distance between the
-    * lightsource and the fragment, c1 and c2 are a constant variable that will affect the attenuation factor
-    * refer to http://learnwebgl.brown37.net/09_lights/lights_attenuation.html for the formula.
-    */
-
-    float d = length(Lvec);
-    float c1 = 0.01;
-    float c2 = 0.05;
-    float attenuation = 1.0 / (1.0 + (c1 * d) + c2 * (d*d));
-
-    color.rgb = globalAmbient + ((ambient + diffuse  + specular) * attenuation);
-	color.a = 1.0;
-
-    gl_Position = Projection * ModelView * vpos;
+    position = (ModelView * vec4(vPosition, 1.0)).xyz;
+    normal = vNormal;
+    gl_Position = Projection * ModelView * vec4(vPosition, 1.0);
     texCoord = vTexCoord;
 }
+
+//uniform vec3 AmbientProduct, DiffuseProduct, SpecularProduct;
+//uniform mat4 ModelView;
+//uniform mat4 Projection;
+//uniform vec4 LightPosition;
+//uniform float Shininess;
