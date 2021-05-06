@@ -17,8 +17,8 @@ uniform mat4 Projection;
 void main()
 {
     fN = (ModelView * vec4(vNormal, 0.0)).xyz;
-    fV = -(ModelView * vec4(vPosition, 0.0)).xyz;
-    fL = LightPosition.xyz - (ModelView * vec4(vPosition, 0.0)).xyz;
+    fV = -(ModelView * vec4(vPosition, 1.0)).xyz;
+    fL = LightPosition.xyz - (ModelView * vec4(vPosition, 1.0)).xyz;
 
     position = (ModelView * vec4(vPosition, 1.0)).xyz;
     normal = vNormal;
