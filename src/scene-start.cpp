@@ -340,6 +340,15 @@ void init(void) {
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
 
+    /* Part I adding extra object to store values for light 2
+    *
+    */
+    addObject(55); // Sphere for the first light
+    sceneObjs[2].loc = vec4(2.0, 1.0, 1.0, 1.0);
+    sceneObjs[2].scale = 0.1;
+    sceneObjs[2].texId = 0; // Plain texture
+    sceneObjs[2].brightness = 0.2; // The light's brightness is 5 times this (below).
+
     addObject(rand() % numMeshes); // A test mesh
 
     // We need to enable the depth test to discard fragments that
@@ -442,8 +451,19 @@ void display(void) {
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc;
 
+    /* Part I
+    * Adding an extra light object for display
+    */
+
+    SceneObject lightObj2 = sceneObjs[2];
+    vec4 lightDirection = view * lightObj2.loc;
+
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition"),
                  1, lightPosition);
+    CheckError();
+
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightDirection"),
+                 1, lightDirection);
     CheckError();
 
     for (int i = 0; i < nObjects; i++) {
@@ -530,6 +550,18 @@ static void lightMenu(int id) {
         toolObj = 1;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+    /* Part I
+    * Adding extra menus for the second ligth
+    */
+     if (id == 80) {
+         toolObj = 2;
+         setToolCallbacks(adjustLocXZ, camRotZ(),
+                          adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
+    } else if (id >= 81 && id <= 84) {
+        toolObj = 2;
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+
     } else {
         printf("Error in lightMenu\n");
         exit(1);
