@@ -11,6 +11,8 @@ uniform mat4 ModelView;
 uniform vec4 LightPosition;
 uniform float Shininess;
 
+uniform float texScale;
+
 uniform sampler2D texture;
 
 void main()
@@ -57,5 +59,5 @@ void main()
     * https://stackoverflow.com/questions/35917678/opengl-lighting-specular-higlight-is-colored
     */
 
-    gl_FragColor = color * texture2D( texture, texCoord * 2.0 ) + vec4(specular, 0.0);
+    gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4(specular, 0.0);
 }

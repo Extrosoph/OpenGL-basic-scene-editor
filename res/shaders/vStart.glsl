@@ -14,6 +14,7 @@ uniform mat4 ModelView;
 uniform vec4 LightPosition;
 uniform mat4 Projection;
 
+
 void main()
 {
     fN = (ModelView * vec4(vNormal, 0.0)).xyz;
