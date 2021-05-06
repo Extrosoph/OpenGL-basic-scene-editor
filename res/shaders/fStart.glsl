@@ -16,9 +16,9 @@ uniform sampler2D texture;
 void main()
 {
 
-    // The vector to the light from the vertex    
+    // The vector to the light from the vertex
     vec3 Lvec = LightPosition.xyz - position;
-   
+
     //normalize
     vec3 N = normalize(fN);
     vec3 V = normalize(fV);
@@ -28,11 +28,11 @@ void main()
 
     vec3 ambient = AmbientProduct;
     float Kd = max(dot(L, N), 0.0);
-    
+
     vec3 diffuse = Kd * DiffuseProduct;
 
     float Ks = pow(max(dot(N, H), 0.0), Shininess);
-    
+
     vec3 specular = Ks * (SpecularProduct);
 
     if(dot(L, N) < 0.0)
@@ -45,13 +45,17 @@ void main()
 
     float d = length(Lvec);
     float b = 0.1;
-    float c = 0.1; 
+    float c = 0.1;
     float reduction = 1.0 / (1.0 + (b * d) + (c * d * d));
 
     vec4 color;
 
-    color.rgb = globalAmbient + ((specular + diffuse +  ambient) * reduction);
+    color.rgb = globalAmbient + (( diffuse +  ambient) * reduction);
 	color.a = 1.0;
 
-    gl_FragColor = color * texture2D( texture, texCoord * 2.0 );
+    /*Part H
+    * https://stackoverflow.com/questions/35917678/opengl-lighting-specular-higlight-is-colored
+    */
+
+    gl_FragColor = color * texture2D( texture, texCoord * 2.0 ) + vec4(specular, 0.0);
 }
