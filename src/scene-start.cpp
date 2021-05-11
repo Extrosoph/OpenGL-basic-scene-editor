@@ -255,7 +255,7 @@ static void doRotate() {
 
 //------Add an object to the scene--------------------------------------------
 
-static void addObject(int id) {
+static void addObject(int id, int tx) {
 
     vec2 currPos = currMouseXYworld(camRotSidewaysDeg);
     sceneObjs[nObjects].loc[0] = currPos[0];
@@ -281,12 +281,50 @@ static void addObject(int id) {
     sceneObjs[nObjects].angles[2] = 0.0;
 
     sceneObjs[nObjects].meshId = id;
-    sceneObjs[nObjects].texId = rand() % numTextures;
-    sceneObjs[nObjects].texScale = 2.0;
+
+    if (tx == 0) {
+        sceneObjs[nObjects].texId = rand() % numTextures;
+    } else {
+       sceneObjs[nObjects].texId = tx;
+    }
 
     toolObj = currObject = nObjects++;
     setToolCallbacks(adjustLocXZ, camRotZ(),
                      adjustScaleY, mat2(0.05, 0, 0, 10.0));
+    glutPostRedisplay();
+}
+
+//------Duplicate an object to the scene--------------------------------------------
+
+static void duplicateObject(int id)
+{
+    addObject(sceneObjs[id].meshId,sceneObjs[id].texId);
+
+    sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
+    sceneObjs[currObject].rgb[1] = sceneObjs[id].rgb[1];
+    sceneObjs[currObject].rgb[2] = sceneObjs[id].rgb[2];
+    sceneObjs[currObject].brightness = sceneObjs[id].brightness;
+
+    sceneObjs[currObject].diffuse = sceneObjs[id].diffuse;
+    sceneObjs[currObject].specular = sceneObjs[id].specular;
+    sceneObjs[currObject].ambient = sceneObjs[id].ambient;
+    sceneObjs[currObject].shine = sceneObjs[id].shine;
+
+    sceneObjs[currObject].angles[0] = sceneObjs[id].angles[0];
+    sceneObjs[currObject].angles[1] = sceneObjs[id].angles[1];
+    sceneObjs[currObject].angles[2] = sceneObjs[id].angles[2];
+
+    setToolCallbacks(adjustLocXZ, camRotZ(),
+                     adjustScaleY, mat2(0.05, 0, 0, 10.0) );
+    glutPostRedisplay();
+}
+
+
+//------Delete an object to the scene--------------------------------------------
+static void deleteObject(int id) {
+
+    // Decrease the number of object
+    nObjects--;
     glutPostRedisplay();
 }
 
@@ -328,28 +366,19 @@ void init(void) {
     modelViewU = glGetUniformLocation(shaderProgram, "ModelView");
 
     // Objects 0, and 1 are the ground and the first light.
-    addObject(0); // Square for the ground
+    addObject(0,0); // Square for the ground
     sceneObjs[0].loc = vec4(0.0, 0.0, 0.0, 1.0);
     sceneObjs[0].scale = 10.0;
     sceneObjs[0].angles[0] = 90.0; // Rotate it.
     sceneObjs[0].texScale = 5.0; // Repeat the texture.
 
-    addObject(55); // Sphere for the first light
+    addObject(55,0); // Sphere for the first light
     sceneObjs[1].loc = vec4(2.0, 1.0, 1.0, 1.0);
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
 
-    /* Part I adding extra object to store values for light 2
-    *
-    */
-    addObject(55); // Sphere for the first light
-    sceneObjs[2].loc = vec4(2.0, 1.0, 1.0, 1.0);
-    sceneObjs[2].scale = 0.1;
-    sceneObjs[2].texId = 0; // Plain texture
-    sceneObjs[2].brightness = 0.2; // The light's brightness is 5 times this (below).
-
-    addObject(rand() % numMeshes); // A test mesh
+    addObject(rand() % numMeshes, 0); // A test mesh
 
     // We need to enable the depth test to discard fragments that
     // are behind previously drawn fragments for the same pixel.
@@ -451,19 +480,8 @@ void display(void) {
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc;
 
-    /* Part I
-    * Adding an extra light object for display
-    */
-
-    SceneObject lightObj2 = sceneObjs[2];
-    vec4 lightDirection = view * lightObj2.loc;
-
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition"),
                  1, lightPosition);
-    CheckError();
-
-    glUniform4fv(glGetUniformLocation(shaderProgram, "LightDirection"),
-                 1, lightDirection);
     CheckError();
 
     for (int i = 0; i < nObjects; i++) {
@@ -489,7 +507,7 @@ void display(void) {
 
 static void objectMenu(int id) {
     deactivateTool();
-    addObject(id);
+    addObject(id, 0);
 }
 
 static void texMenu(int id) {
@@ -548,17 +566,6 @@ static void lightMenu(int id) {
                          adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
     } else if (id >= 71 && id <= 74) {
         toolObj = 1;
-        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
-                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
-    /* Part I
-    * Adding extra menus for the second ligth
-    */
-     if (id == 80) {
-         toolObj = 2;
-         setToolCallbacks(adjustLocXZ, camRotZ(),
-                          adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
-    } else if (id >= 81 && id <= 84) {
-        toolObj = 2;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
@@ -643,6 +650,12 @@ static void mainmenu(int id) {
         setToolCallbacks(adjustAngleYX, mat2(400, 0, 0, -400),
                          adjustAngleZTexscale, mat2(400, 0, 0, 15));
     }
+    if (id == 87 && currObject>=0) {
+        deleteObject(currObject);
+    }
+    if (id == 88 && currObject>=0) {
+        duplicateObject(currObject);
+    }
     if (id == 99) exit(0);
 }
 
@@ -676,6 +689,16 @@ static void makeMenu() {
     glutAddSubMenu("Texture", texMenuId);
     glutAddSubMenu("Ground Texture", groundMenuId);
     glutAddSubMenu("Lights", lightMenuId);
+
+    /*
+    * Part J.b addition of menu to the list
+    */
+    glutAddMenuEntry("Delete object", 87);
+
+    /*
+    * Part J.b addition of menu to the list
+    */
+    glutAddMenuEntry("Duplicate object", 88);
     glutAddMenuEntry("EXIT", 99);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
