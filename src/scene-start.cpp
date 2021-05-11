@@ -304,6 +304,7 @@ static void duplicateObject(int id)
 {
     addObject(sceneObjs[id].meshId,sceneObjs[id].texId);
 
+    // Set the values that should be the same from the previous object
     sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
     sceneObjs[currObject].rgb[1] = sceneObjs[id].rgb[1];
     sceneObjs[currObject].rgb[2] = sceneObjs[id].rgb[2];
