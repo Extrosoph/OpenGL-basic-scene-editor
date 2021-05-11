@@ -294,6 +294,10 @@ static void addObject(int id, int tx) {
     glutPostRedisplay();
 }
 
+/*
+* Part J.b defining  the duplication function as well as changing the addObject() function
+*/
+
 //------Duplicate an object to the scene--------------------------------------------
 
 static void duplicateObject(int id)
@@ -319,6 +323,9 @@ static void duplicateObject(int id)
     glutPostRedisplay();
 }
 
+/*
+* Part J.a defining  the deletion function
+*/
 
 //------Delete an object to the scene--------------------------------------------
 static void deleteObject(int id) {
@@ -691,7 +698,7 @@ static void makeMenu() {
     glutAddSubMenu("Lights", lightMenuId);
 
     /*
-    * Part J.b addition of menu to the list
+    * Part J.a addition of menu to the list
     */
     glutAddMenuEntry("Delete object", 87);
 
