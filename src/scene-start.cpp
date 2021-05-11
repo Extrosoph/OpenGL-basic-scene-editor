@@ -302,26 +302,35 @@ static void addObject(int id, int tx) {
 
 static void duplicateObject(int id)
 {
-    addObject(sceneObjs[id].meshId,sceneObjs[id].texId);
+    // Check if there is an object to duplicate
+    if(nObjects <= 2){
+        // Do nothing
+        return;
+    }
 
-    // Set the values that should be the same from the previous object
-    sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
-    sceneObjs[currObject].rgb[1] = sceneObjs[id].rgb[1];
-    sceneObjs[currObject].rgb[2] = sceneObjs[id].rgb[2];
-    sceneObjs[currObject].brightness = sceneObjs[id].brightness;
+    else {
+        // Create the newObject and add it to the stack
+        addObject(sceneObjs[id].meshId,sceneObjs[id].texId);
 
-    sceneObjs[currObject].diffuse = sceneObjs[id].diffuse;
-    sceneObjs[currObject].specular = sceneObjs[id].specular;
-    sceneObjs[currObject].ambient = sceneObjs[id].ambient;
-    sceneObjs[currObject].shine = sceneObjs[id].shine;
+        // Set the values that should be the same from the previous object
+        sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
+        sceneObjs[currObject].rgb[1] = sceneObjs[id].rgb[1];
+        sceneObjs[currObject].rgb[2] = sceneObjs[id].rgb[2];
+        sceneObjs[currObject].brightness = sceneObjs[id].brightness;
 
-    sceneObjs[currObject].angles[0] = sceneObjs[id].angles[0];
-    sceneObjs[currObject].angles[1] = sceneObjs[id].angles[1];
-    sceneObjs[currObject].angles[2] = sceneObjs[id].angles[2];
+        sceneObjs[currObject].diffuse = sceneObjs[id].diffuse;
+        sceneObjs[currObject].specular = sceneObjs[id].specular;
+        sceneObjs[currObject].ambient = sceneObjs[id].ambient;
+        sceneObjs[currObject].shine = sceneObjs[id].shine;
 
-    setToolCallbacks(adjustLocXZ, camRotZ(),
-                     adjustScaleY, mat2(0.05, 0, 0, 10.0) );
-    glutPostRedisplay();
+        sceneObjs[currObject].angles[0] = sceneObjs[id].angles[0];
+        sceneObjs[currObject].angles[1] = sceneObjs[id].angles[1];
+        sceneObjs[currObject].angles[2] = sceneObjs[id].angles[2];
+
+        setToolCallbacks(adjustLocXZ, camRotZ(),
+                         adjustScaleY, mat2(0.05, 0, 0, 10.0) );
+        glutPostRedisplay();
+    }
 }
 
 /*
@@ -330,10 +339,17 @@ static void duplicateObject(int id)
 
 //------Delete an object to the scene--------------------------------------------
 static void deleteObject(int id) {
-
-    // Decrease the number of object
-    nObjects--;
-    glutPostRedisplay();
+    std::cout << sizeof(sceneObjs)/sizeof(sceneObjs[0]) << std::endl;
+    // Check if there is an object to delete
+    if (nObjects <= 2) {
+        // Do nothing
+        return;
+    }
+    else {
+        // Decrease the number of object
+        nObjects--;
+        glutPostRedisplay();
+    }
 }
 
 //------The init function-----------------------------------------------------
