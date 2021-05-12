@@ -255,7 +255,7 @@ static void doRotate() {
 
 //------Add an object to the scene--------------------------------------------
 
-static void addObject(int id, int tx) {
+static void addObject(int id) {
 
     vec2 currPos = currMouseXYworld(camRotSidewaysDeg);
     sceneObjs[nObjects].loc[0] = currPos[0];
@@ -282,11 +282,7 @@ static void addObject(int id, int tx) {
 
     sceneObjs[nObjects].meshId = id;
 
-    if (tx == 0) {
-        sceneObjs[nObjects].texId = rand() % numTextures;
-    } else {
-       sceneObjs[nObjects].texId = tx;
-    }
+    sceneObjs[nObjects].texId = rand() % numTextures;
 
     toolObj = currObject = nObjects++;
     setToolCallbacks(adjustLocXZ, camRotZ(),
@@ -310,14 +306,18 @@ static void duplicateObject(int id)
 
     else {
         // Create the newObject and add it to the stack
-        addObject(sceneObjs[id].meshId,sceneObjs[id].texId);
+        addObject(sceneObjs[id].meshId);
 
         // Set the values that should be the same from the previous object
+        sceneObjs[currObject].scale = sceneObjs[id].scale;
+        sceneObjs[currObject].loc = sceneObjs[id].loc;
+        sceneObjs[currObject].texId = sceneObjs[id].texId;
+
         sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
         sceneObjs[currObject].rgb[1] = sceneObjs[id].rgb[1];
         sceneObjs[currObject].rgb[2] = sceneObjs[id].rgb[2];
-        sceneObjs[currObject].brightness = sceneObjs[id].brightness;
 
+        sceneObjs[currObject].brightness = sceneObjs[id].brightness;
         sceneObjs[currObject].diffuse = sceneObjs[id].diffuse;
         sceneObjs[currObject].specular = sceneObjs[id].specular;
         sceneObjs[currObject].ambient = sceneObjs[id].ambient;
@@ -390,19 +390,19 @@ void init(void) {
     modelViewU = glGetUniformLocation(shaderProgram, "ModelView");
 
     // Objects 0, and 1 are the ground and the first light.
-    addObject(0,0); // Square for the ground
+    addObject(0); // Square for the ground
     sceneObjs[0].loc = vec4(0.0, 0.0, 0.0, 1.0);
     sceneObjs[0].scale = 10.0;
     sceneObjs[0].angles[0] = 90.0; // Rotate it.
     sceneObjs[0].texScale = 5.0; // Repeat the texture.
 
-    addObject(55,0); // Sphere for the first light
+    addObject(55); // Sphere for the first light
     sceneObjs[1].loc = vec4(2.0, 1.0, 1.0, 1.0);
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
 
-    addObject(rand() % numMeshes, 0); // A test mesh
+    addObject(rand() % numMeshes); // A test mesh
 
     // We need to enable the depth test to discard fragments that
     // are behind previously drawn fragments for the same pixel.
@@ -531,7 +531,7 @@ void display(void) {
 
 static void objectMenu(int id) {
     deactivateTool();
-    addObject(id, 0);
+    addObject(id);
 }
 
 static void texMenu(int id) {
