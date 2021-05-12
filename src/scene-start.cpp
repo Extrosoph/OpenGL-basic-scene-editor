@@ -582,8 +582,11 @@ static void groundMenu(int id) {
 }
 
 static void adjustBrightnessY(vec2 by) {
-    sceneObjs[toolObj].brightness += by[0];
-    sceneObjs[toolObj].loc[1] += by[1];
+    if (sceneObjs[toolObj].brightness >= 0)
+    {
+        sceneObjs[toolObj].brightness += by[0];
+        sceneObjs[toolObj].loc[1] += by[1];
+    }
 }
 
 static void adjustRedGreen(vec2 rg) {
