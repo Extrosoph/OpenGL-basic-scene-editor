@@ -23,7 +23,7 @@ void main()
     fV = -(ModelView * vec4(vPosition, 1.0)).xyz;
     fL = LightPosition1.xyz - (ModelView * vec4(vPosition, 1.0)).xyz;
 
-    fL2 = LightPosition2.xyz;// - (ModelView * vec4(vPosition, 1.0)).xyz;// - (ModelView * vec4(0.0,0.0,0.0,1.0)).xyz;// - (ModelView * vec4(vPosition, 1.0)).xyz;
+    fL2 = LightPosition2.xyz - (ModelView * vec4(vPosition, 1.0)).xyz;// - (ModelView * vec4(0.0,0.0,0.0,1.0)).xyz;// - (ModelView * vec4(vPosition, 1.0)).xyz;
 
     position = (ModelView * vec4(vPosition, 1.0)).xyz;
     normal = vNormal;

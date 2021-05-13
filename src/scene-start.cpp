@@ -310,9 +310,7 @@ static void duplicateObject(int id)
 
         // Set the values that should be the same from the previous object
         sceneObjs[currObject].scale = sceneObjs[id].scale;
-
-        //Make the location slightly different so we can the see the new object
-        sceneObjs[currObject].loc = sceneObjs[id].loc + vec4(0.1, 0.1, 0.1, 0.1);
+        sceneObjs[currObject].loc = sceneObjs[id].loc;
         sceneObjs[currObject].texId = sceneObjs[id].texId;
 
         sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
@@ -348,12 +346,8 @@ static void deleteObject(int id) {
         return;
     }
     else {
-        //deallocate memory
-        sceneObjs[currObject] = sceneObjs[currObject-1];
-        // Decrease the number of object and the current object pointer.
+        // Decrease the number of object
         nObjects--;
-        currObject--;
-        toolObj--;
         glutPostRedisplay();
     }
 }
@@ -407,7 +401,7 @@ void init(void) {
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
-
+    
     /* Part I adding extra object to store values for light 2
     *
     */
@@ -418,6 +412,15 @@ void init(void) {
     sceneObjs[2].brightness = 0.2; // The light's brightness is 5 times this (below).
     sceneObjs[2].angles[1] = 90.0;
 
+    /* Part J 3 adding extra object to store values for light 3
+    *
+    */
+    addObject(55); // Sphere for the second light
+    sceneObjs[3].loc = vec4(3.0, 3.0, 3.0, 3.0);
+    sceneObjs[3].scale = 0.1;
+    sceneObjs[3].texId = 0; // Plain texture
+    sceneObjs[3].brightness = 0.2; // The light's brightness is 5 times this (below).
+    sceneObjs[3].angles[1] = 90.0;
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -546,9 +549,25 @@ void display(void) {
                 lightObj2.brightness);
     CheckError();
 
+    /* Part J  3
+    * Adding an extra light object for display
+    */
+    // mat4 origin_perspective = rotateY * rotateX;
+    SceneObject lightObj3 = sceneObjs[3];
+    vec4 lightPosition3 = view * lightObj3.loc;
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition3"),
+                 1, lightPosition3);
+    CheckError();
+    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor3"),
+                 1, lightObj3.rgb);
+    CheckError();
+    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness3"),
+                lightObj3.brightness);
+    CheckError();
+
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
-
+	
 	// Part I accouring for different lights and brightness and colour calculation from light are now done in shaders
         vec3 rgb = so.rgb * so.brightness * 2.0; // lightObj1.rgb * lightObj1.brightness * 2.0;
         glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb);
@@ -636,7 +655,7 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
-    }
+    } 
     /* Part I
     * Adding extra menus for the second ligth
     */
@@ -646,6 +665,19 @@ static void lightMenu(int id) {
                           adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
     } else if (id >= 81 && id <= 84) {
         toolObj = 2;
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+
+    } 
+    /* Part J 3
+    * Adding extra menus for the second ligth
+    */
+    else if (id == 90) {
+         toolObj = 3;
+         setToolCallbacks(adjustLocXZ, camRotZ(), // change funnel
+                          adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
+    } else if (id >= 91 && id <= 94) {
+        toolObj = 3;
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
@@ -753,20 +785,20 @@ static void makeMenu() {
 
     int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
     int groundMenuId = createArrayMenu(numTextures, textureMenuEntries, groundMenu);
-    // int objectsId = createArrayMenu2(objectMenu);
 
     int lightMenuId = glutCreateMenu(lightMenu);
     glutAddMenuEntry("Move Light 1", 70);
     glutAddMenuEntry("R/G/B/All Light 1", 71);
     glutAddMenuEntry("Move Light 2", 80);
     glutAddMenuEntry("R/G/B/All Light 2", 81);
+    glutAddMenuEntry("Move Light 3", 90);
+    glutAddMenuEntry("R/G/B/All Light 3", 91);
 
     glutCreateMenu(mainmenu);
     glutAddMenuEntry("Rotate/Move Camera", 50);
     glutAddSubMenu("Add object", objectId);
     glutAddMenuEntry("Position/Scale", 41);
     glutAddMenuEntry("Rotation/Texture Scale", 55);
-    // glutAddSubMenu("Select Object", objectsId);
     glutAddSubMenu("Material", materialMenuId);
     glutAddSubMenu("Texture", texMenuId);
     glutAddSubMenu("Ground Texture", groundMenuId);
