@@ -407,6 +407,17 @@ void init(void) {
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
+    
+    /* Part I adding extra object to store values for light 2
+    *
+    */
+    addObject(55); // Sphere for the second light
+    sceneObjs[2].loc = vec4(2.0, 2.0, 2.0, 2.0);
+    sceneObjs[2].scale = 0.2;
+    sceneObjs[2].texId = 0; // Plain texture
+    sceneObjs[2].brightness = 0.2; // The light's brightness is 5 times this (below).
+    sceneObjs[2].angles[1] = 90.0;
+
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -510,16 +521,38 @@ void display(void) {
     cout << nObjects << std::endl;
 
     SceneObject lightObj1 = sceneObjs[1];
-    vec4 lightPosition = view * lightObj1.loc;
+    vec4 lightPosition1 = view * lightObj1.loc;
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition1"),
+                 1, lightPosition1);
+    CheckError();
+    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor1"),
+                 1, lightObj1.rgb);
+    CheckError();
+    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness1"),
+                lightObj1.brightness);
+    CheckError();
 
-    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition"),
-                 1, lightPosition);
+    /* Part I
+    * Adding an extra light object for display
+    */
+    mat4 origin_perspective = rotateY * rotateX;
+    SceneObject lightObj2 = sceneObjs[2];
+    vec4 lightPosition2 = origin_perspective * lightObj2.loc;
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition2"),
+                 1, lightPosition2);
+    CheckError();
+    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor2"),
+                 1, lightObj2.rgb);
+    CheckError();
+    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness2"),
+                lightObj2.brightness);
     CheckError();
 
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
-
-        vec3 rgb = so.rgb * lightObj1.rgb * so.brightness * lightObj1.brightness * 2.0;
+	
+	// Part I accouring for different lights and brightness and colour calculation from light are now done in shaders
+        vec3 rgb = so.rgb * so.brightness * 2.0; // lightObj1.rgb * lightObj1.brightness * 2.0;
         glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb);
         CheckError();
         glUniform3fv(glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * rgb);
@@ -562,8 +595,11 @@ static void ObjectMenu(int id) {
 }
 
 static void adjustBrightnessY(vec2 by) {
-    sceneObjs[toolObj].brightness += by[0];
-    sceneObjs[toolObj].loc[1] += by[1];
+    if (sceneObjs[toolObj].brightness >= 0)
+    {
+        sceneObjs[toolObj].brightness += by[0];
+        sceneObjs[toolObj].loc[1] += by[1];
+    }
 }
 
 static void adjustRedGreen(vec2 rg) {
@@ -606,7 +642,20 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
-    } else {
+    } 
+    /* Part I
+    * Adding extra menus for the second ligth
+    */
+    else if (id == 80) {
+         toolObj = 2;
+         setToolCallbacks(adjustLocXZ, camRotZ(),
+                          adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
+    } else if (id >= 81 && id <= 84) {
+        toolObj = 2;
+        setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
+                         adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
+
+    } 	else {
         printf("Error in lightMenu\n");
         exit(1);
     }
