@@ -310,7 +310,9 @@ static void duplicateObject(int id)
 
         // Set the values that should be the same from the previous object
         sceneObjs[currObject].scale = sceneObjs[id].scale;
-        sceneObjs[currObject].loc = sceneObjs[id].loc;
+
+        //Make the location slightly different so we can the see the new object
+        sceneObjs[currObject].loc = sceneObjs[id].loc + vec4(0.1, 0.1, 0.1, 0.1);
         sceneObjs[currObject].texId = sceneObjs[id].texId;
 
         sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
@@ -346,8 +348,12 @@ static void deleteObject(int id) {
         return;
     }
     else {
-        // Decrease the number of object
+        //deallocate memory
+        sceneObjs[currObject] = sceneObjs[currObject-1];
+        // Decrease the number of object and the current object pointer.
         nObjects--;
+        currObject--;
+        toolObj--;
         glutPostRedisplay();
     }
 }
@@ -501,6 +507,8 @@ void display(void) {
     mat4 rotateX = RotateX(camRotUpAndOverDeg); // Adds the X rotations
     view = Translate(0.0, 0.0, -viewDist) * rotateX * rotateY; //Multiply to the viewport variable to change the view of angle
 
+    cout << nObjects << std::endl;
+
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition = view * lightObj1.loc;
 
@@ -545,6 +553,11 @@ static void texMenu(int id) {
 static void groundMenu(int id) {
     deactivateTool();
     sceneObjs[0].texId = id;
+    glutPostRedisplay();
+}
+
+static void ObjectMenu(int id) {
+    deactivateTool();
     glutPostRedisplay();
 }
 
@@ -620,6 +633,21 @@ static int createArrayMenu(int size, const char menuEntries[][128], void(*menuFn
     }
     return menuId;
 }
+
+// static int createArrayMenu2(void(*menuFn)(int)) {
+//     int nSubMenus = nObjects;
+//     int menuId = glutCreateMenu(menuFn);
+//     int counter = 100;
+//
+//     for (int i = 0; i < nSubMenus; i++) {
+//         char num[6];
+//         sprintf(num, "%d", i);
+//         glutAddSubMenu(num, counter);
+//         CheckError();
+//         counter++;
+//     }
+//     return menuId;
+// }
 
 static void materialMenu(int id) {
     deactivateTool();
@@ -697,6 +725,7 @@ static void makeMenu() {
 
     int texMenuId = createArrayMenu(numTextures, textureMenuEntries, texMenu);
     int groundMenuId = createArrayMenu(numTextures, textureMenuEntries, groundMenu);
+    // int objectsId = createArrayMenu2(objectMenu);
 
     int lightMenuId = glutCreateMenu(lightMenu);
     glutAddMenuEntry("Move Light 1", 70);
@@ -709,6 +738,7 @@ static void makeMenu() {
     glutAddSubMenu("Add object", objectId);
     glutAddMenuEntry("Position/Scale", 41);
     glutAddMenuEntry("Rotation/Texture Scale", 55);
+    // glutAddSubMenu("Select Object", objectsId);
     glutAddSubMenu("Material", materialMenuId);
     glutAddSubMenu("Texture", texMenuId);
     glutAddSubMenu("Ground Texture", groundMenuId);
