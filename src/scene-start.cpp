@@ -407,7 +407,7 @@ void init(void) {
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
-    
+
     /* Part I adding extra object to store values for light 2
     *
     */
@@ -550,7 +550,7 @@ void display(void) {
 
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
-	
+
 	// Part I accouring for different lights and brightness and colour calculation from light are now done in shaders
         vec3 rgb = so.rgb * so.brightness * 2.0; // lightObj1.rgb * lightObj1.brightness * 2.0;
         glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb);
@@ -602,7 +602,6 @@ static void adjustBrightnessY(vec2 by) {
         sceneObjs[toolObj].loc[1] += by[1];
     }
 }
-}
 
 static void adjustRedGreen(vec2 rg) {
     sceneObjs[toolObj].rgb[0] += rg[0];
@@ -644,7 +643,7 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
-    } 
+    }
     /* Part I
     * Adding extra menus for the second ligth
     */
