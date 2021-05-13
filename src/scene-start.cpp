@@ -595,11 +595,13 @@ static void ObjectMenu(int id) {
 }
 
 static void adjustBrightnessY(vec2 by) {
-    if (sceneObjs[toolObj].brightness >= 0)
+    int minimum_possible_brightness = 0;
+    if (sceneObjs[toolObj].brightness + by[0] >= minimum_possible_brightness)
     {
         sceneObjs[toolObj].brightness += by[0];
         sceneObjs[toolObj].loc[1] += by[1];
     }
+}
 }
 
 static void adjustRedGreen(vec2 rg) {
