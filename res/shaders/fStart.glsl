@@ -24,7 +24,7 @@ void main()
 
     // The vector to the light from the vertex
     vec3 Lvec = LightPosition1.xyz - position;
-    vec3 Lvec2 = LightPosition2.xyz;// - position;
+    vec3 Lvec2 = LightPosition2.xyz - position;
 
     //normalize
     vec3 N = normalize(fN);
