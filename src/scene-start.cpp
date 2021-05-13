@@ -343,7 +343,7 @@ static void duplicateObject(int id)
 static void deleteObject(int id) {
     std::cout << sizeof(sceneObjs)/sizeof(sceneObjs[0]) << std::endl;
     // Check if there is an object to delete
-    if (nObjects <= 2) {
+    if (nObjects <= 4) {
         // Do nothing
         return;
     }
@@ -518,8 +518,6 @@ void display(void) {
     mat4 rotateX = RotateX(camRotUpAndOverDeg); // Adds the X rotations
     view = Translate(0.0, 0.0, -viewDist) * rotateX * rotateY; //Multiply to the viewport variable to change the view of angle
 
-    cout << nObjects << std::endl;
-
     SceneObject lightObj1 = sceneObjs[1];
     vec4 lightPosition1 = view * lightObj1.loc;
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition1"),
@@ -586,11 +584,6 @@ static void texMenu(int id) {
 static void groundMenu(int id) {
     deactivateTool();
     sceneObjs[0].texId = id;
-    glutPostRedisplay();
-}
-
-static void ObjectMenu(int id) {
-    deactivateTool();
     glutPostRedisplay();
 }
 
@@ -683,21 +676,6 @@ static int createArrayMenu(int size, const char menuEntries[][128], void(*menuFn
     }
     return menuId;
 }
-
-// static int createArrayMenu2(void(*menuFn)(int)) {
-//     int nSubMenus = nObjects;
-//     int menuId = glutCreateMenu(menuFn);
-//     int counter = 100;
-//
-//     for (int i = 0; i < nSubMenus; i++) {
-//         char num[6];
-//         sprintf(num, "%d", i);
-//         glutAddSubMenu(num, counter);
-//         CheckError();
-//         counter++;
-//     }
-//     return menuId;
-// }
 
 static void materialMenu(int id) {
     deactivateTool();
