@@ -406,7 +406,7 @@ void init(void) {
     *
     */
     addObject(55); // Sphere for the second light
-    sceneObjs[2].loc = vec4(2.0, 2.0, 2.0, 2.0);
+    sceneObjs[2].loc = vec4(2.0, 2.0, 1.0, 1.0);
     sceneObjs[2].scale = 0.2;
     sceneObjs[2].texId = 0; // Plain texture
     sceneObjs[2].brightness = 0.2; // The light's brightness is 5 times this (below).
@@ -416,7 +416,7 @@ void init(void) {
     *
     */
     addObject(55); // Sphere for the third light
-    sceneObjs[3].loc = vec4(3.0, 3.0, 3.0, 3.0);
+    sceneObjs[3].loc = vec4(3.0, 1.0, 1.0, 1.0);
     sceneObjs[3].scale = 0.1;
     sceneObjs[3].texId = 0; // Plain texture
     sceneObjs[3].brightness = 0.2; // The light's brightness is 5 times this (below).
@@ -533,31 +533,10 @@ void display(void) {
                 lightObj1.brightness);
     CheckError();
 
-    /* Part I
-    * Adding an extra light object for display
-    */
-    mat4 origin_perspective = rotateY * rotateX;
-    SceneObject lightObj2 = sceneObjs[2];
-    vec4 lightPosition2 = origin_perspective * lightObj2.loc;
-    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition2"),
-                 1, lightPosition2);
-    CheckError();
-    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor2"),
-                 1, lightObj2.rgb);
-    CheckError();
-    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness2"),
-                lightObj2.brightness);
-    CheckError();
-
     /* Part J  3
     * Adding an extra light object for display
     */
-    // mat4 origin_perspective = rotateY * rotateX;
     SceneObject lightObj3 = sceneObjs[3];
-    // vec3 direction = vec3(RotateY(lightObj3.angles[1]), RotateX(lightObj3.angles[2]), RotateZ(lightObj3.angles[3]));
-     // * lightObj3.loc;
-    //vec3 LightDirection = vec3(lightObj3.angles[0], lightObj3.angles[1], lightObj3.angles[2]);
-    //vec4 LightDirection = view * vec4(RotateY(lightObj3.angles[1]), RotateX(lightObj3.angles[2]), RotateZ(lightObj3.angles[3]));
     vec4 lightPosition3 = view * lightObj3.loc;
     glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition3"),
                  1, lightPosition3);
@@ -577,6 +556,22 @@ void display(void) {
                  1, light3Dir);
     CheckError();
 
+    /* Part I
+    * Adding an extra light object for display
+    */
+    mat4 origin_perspective = rotateY * rotateX;
+    SceneObject lightObj2 = sceneObjs[2];
+    vec4 lightPosition2 = origin_perspective * lightObj2.loc;
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition2"),
+                 1, lightPosition2);
+    CheckError();
+    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor2"),
+                 1, lightObj2.rgb);
+    CheckError();
+    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness2"),
+                lightObj2.brightness);
+    CheckError();
+
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
 	
@@ -592,9 +587,9 @@ void display(void) {
         drawMesh(sceneObjs[i]);
     }
 
-    cout<<lightObj3.angles[0]<<std::endl;
-    cout<<lightObj3.angles[1]<<std::endl;
-    cout<<lightObj3.angles[2]<<std::endl;
+    // cout<<lightObj3.angles[0]<<std::endl;
+    // cout<<lightObj3.angles[1]<<std::endl;
+    // cout<<lightObj3.angles[2]<<std::endl;
     
     glutSwapBuffers();
 }
