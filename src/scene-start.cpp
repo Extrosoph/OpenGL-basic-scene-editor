@@ -287,6 +287,7 @@ static void addObject(int id) {
     toolObj = currObject = nObjects++;
     setToolCallbacks(adjustLocXZ, camRotZ(),
                      adjustScaleY, mat2(0.05, 0, 0, 10.0));
+
     glutPostRedisplay();
 }
 
@@ -299,7 +300,7 @@ static void addObject(int id) {
 static void duplicateObject(int id)
 {
     // Check if there is an object to duplicate
-    if(nObjects <= 2){
+    if(nObjects <= 4){
         // Do nothing
         return;
     }
@@ -339,14 +340,25 @@ static void duplicateObject(int id)
 
 //------Delete an object to the scene--------------------------------------------
 static void deleteObject(int id) {
-    std::cout << sizeof(sceneObjs)/sizeof(sceneObjs[0]) << std::endl;
     // Check if there is an object to delete
     if (nObjects <= 4) {
         // Do nothing
         return;
     }
+
+    // If the current object is last
+    else if (currObject == nObjects - 1){
+        // Decrease the number of object
+        nObjects--;
+        currObject--;
+    }
+
+    // If the current object is not last
     else {
         // Decrease the number of object
+        for (int i=currObject; i < nObjects; i++) {
+            sceneObjs[i] = sceneObjs[i+1];
+        }
         nObjects--;
         glutPostRedisplay();
     }
@@ -401,7 +413,7 @@ void init(void) {
     sceneObjs[1].scale = 0.1;
     sceneObjs[1].texId = 0; // Plain texture
     sceneObjs[1].brightness = 0.2; // The light's brightness is 5 times this (below).
-    
+
     /* Part I adding extra object to store values for light 2
     *
     */
@@ -517,8 +529,8 @@ void display(void) {
     // The rotation is based from Lecture 14 page 8-9
     // Those functions creates a rotation matrix which was show in lab 3, Q.2 but turned into a 4*4 matrix.
     // Here order of transformation does matter.
-    mat4 rotateY = RotateY(camRotSidewaysDeg); // Adds the Y rotation
-    mat4 rotateX = RotateX(camRotUpAndOverDeg); // Adds the X rotations
+    mat4 rotateY = RotateY(camRotSidewaysDeg);
+    mat4 rotateX = RotateX(camRotUpAndOverDeg);
     view = Translate(0.0, 0.0, -viewDist) * rotateX * rotateY; //Multiply to the viewport variable to change the view of angle
 
     SceneObject lightObj1 = sceneObjs[1];
@@ -567,7 +579,7 @@ void display(void) {
 
     for (int i = 0; i < nObjects; i++) {
         SceneObject so = sceneObjs[i];
-	
+
 	// Part I accouring for different lights and brightness and colour calculation from light are now done in shaders
         vec3 rgb = so.rgb * so.brightness * 2.0; // lightObj1.rgb * lightObj1.brightness * 2.0;
         glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb);
@@ -655,7 +667,7 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
-    } 
+    }
     /* Part I
     * Adding extra menus for the second ligth
     */
@@ -668,7 +680,7 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
-    } 
+    }
     /* Part J 3
     * Adding extra menus for the second ligth
     */
@@ -772,6 +784,7 @@ static void mainmenu(int id) {
 }
 
 static void makeMenu() {
+
     int objectId = createArrayMenu(numMeshes, objectMenuEntries, objectMenu);
 
     int materialMenuId = glutCreateMenu(materialMenu);
@@ -825,6 +838,24 @@ void keyboard(unsigned char key, int x, int y) {
             exit(EXIT_SUCCESS);
             break;
         }
+        // Select previous object
+        case  'a':
+
+            // Make sure the index doesn`t change any lights or grounds
+            if (currObject >= 5) {
+                currObject--;
+            }
+            break;
+
+        // Select next object
+        case  'd':
+
+            // Make sure the index doesn`t go over the number of object
+            if(currObject != nObjects - 1){
+                currObject++;
+                toolObj++;
+            }
+            break;
         case 'w': {
             if (glutGetModifiers() == GLUT_ACTIVE_ALT) { // up + alt
                 zoomIn();
