@@ -1,6 +1,6 @@
 varying vec2 texCoord;  // The third coordinate is always 0.0 and is discarded
-
 varying vec3 normal;
+varying vec4 position;
 
 varying vec4 vPosition;
 uniform vec3 AmbientProduct, DiffuseProduct, SpecularProduct;
@@ -12,9 +12,6 @@ uniform vec4 LightPosition1, LightPosition2, LightPosition3;
 uniform vec3 LightColor1, LightColor2, LightColor3;
 uniform float LightBrightness1, LightBrightness2, LightBrightness3;
 uniform vec4 LightDirection;
-
-varying vec4 position;
-
 
 // Textures
 uniform float texScale;
@@ -31,7 +28,7 @@ void main()
     vec3 Lvec3 = LightPosition3.xyz - pos;
 
     //normalize
-    vec3 L = normalize(Lvec); 
+    vec3 L = normalize(Lvec);
     vec3 L2 = normalize(Lvec2);
     vec3 L3 = normalize(Lvec3);
 
@@ -41,7 +38,7 @@ void main()
     vec3 H2 = normalize(L2 + E);
     vec3 H3 = normalize(L3 + E);
 
-    // Ambient Calculation 
+    // Ambient Calculation
     vec3 ambient = AmbientProduct * (LightColor1 * LightBrightness1);
     vec3 ambient2 = AmbientProduct * (LightColor2 * LightBrightness2);
     vec3 ambient3 = AmbientProduct * (LightColor3 * LightBrightness3);
@@ -92,7 +89,6 @@ void main()
 
 
     vec3 dL = normalize(LightDirection.xyz);
-    //angle = (max(angle, 0.0));
     vec4 color3;
     if(dot(L3, dL) < 0.5)
     {

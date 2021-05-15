@@ -292,7 +292,7 @@ static void addObject(int id) {
 }
 
 /*
-* Part J.b defining  the duplication function as well as changing the addObject() function
+* Part J.b defining  the duplication function
 */
 
 //------Duplicate an object to the scene--------------------------------------------
@@ -432,7 +432,6 @@ void init(void) {
     sceneObjs[3].scale = 0.1;
     sceneObjs[3].texId = 0; // Plain texture
     sceneObjs[3].brightness = 0.2; // The light's brightness is 5 times this (below).
-    // sceneObjs[3].angles[1] = 90.0;
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -466,12 +465,12 @@ void drawMesh(SceneObject sceneObj) {
     // Set the model matrix - this should combine translation, rotation and scaling based on what's
     // in the sceneObj structure (see near the top of the program).
 
-    /* Part B with Same Rotation Method:
-    * Rotate the object around all axis
-    * 1. Hold the left mouse button and moves the mouse right or left will rotate the object around the y-axis.
-    * 2. Hold the left mouse button and moves the mouse up or down will rotate the object along the x-axis.
-    * 3. Hold down the scroll wheel and move the mouse left and right will rotate the object along the z-axis.
-    * 4. Not sure about the texture scale.
+    /* Part B
+    * Rotating the model by using built in function specified in mat.h which refers to lab 5.
+    * Here we use object slicing and swizzling which uses the indexing of array using [] and selection (.) operator refer to lecture 5 pg 30.
+    * each object has angles for x,y,z and we use the rotation matrix from mat.h to transform at each specific angle.
+    * angle[0] is x, angle[1] is y and angle[2] is z
+    * Order of transformation does not matter
     */
 
     // Rotating the model by using built in function specified in mat.h which refers to lab 5.
@@ -514,21 +513,12 @@ void display(void) {
     // backwards.  You'll need to add appropriate rotations.
 
     /*Part A:
-    1. Hold [left mouse button]/[scroll wheel] and move the mouse left or right will rotate the viewport/Camera
-    with respect to the center of field in the x-axis.
-    2. Hold the left mouse button and move the mouse forward will zoom in the viewport/Camerawith respect to
-    the center of field and backward is zoom out.
-    3. Scroll up will zoom in and scroll down will zoom out with respect to center of field.
-    4. Hold scroll whell button and moving the mouse up/down will rotate the viewport/camera over the y-axis
-    with respect to the center of field.
-    5. Hold the scroll wheel and move the mouse left or right will rotate the viewport/camera over the x-axis
-    with respect to the center of field.
+    *Using rotation matrix generator from mat.h refer to lab 5
+    * The rotation is based from Lecture 14 page 8-9
+    * Those functions creates a rotation matrix which was show in lab 3, Q.2 but turned into a 4*4 matrix.
+    * Here order of transformation does matter.
     */
 
-    // Using rotation matrix generator from mat.h refer to lab 5
-    // The rotation is based from Lecture 14 page 8-9
-    // Those functions creates a rotation matrix which was show in lab 3, Q.2 but turned into a 4*4 matrix.
-    // Here order of transformation does matter.
     mat4 rotateY = RotateY(camRotSidewaysDeg);
     mat4 rotateX = RotateX(camRotUpAndOverDeg);
     view = Translate(0.0, 0.0, -viewDist) * rotateX * rotateY; //Multiply to the viewport variable to change the view of angle
@@ -588,7 +578,7 @@ void display(void) {
         SceneObject so = sceneObjs[i];
 
 	// Part I accouring for different lights and brightness and colour calculation from light are now done in shaders
-        vec3 rgb = so.rgb * so.brightness * 2.0; // lightObj1.rgb * lightObj1.brightness * 2.0;
+        vec3 rgb = so.rgb * so.brightness * 2.0;
         glUniform3fv(glGetUniformLocation(shaderProgram, "AmbientProduct"), 1, so.ambient * rgb);
         CheckError();
         glUniform3fv(glGetUniformLocation(shaderProgram, "DiffuseProduct"), 1, so.diffuse * rgb);
@@ -599,10 +589,6 @@ void display(void) {
         drawMesh(sceneObjs[i]);
     }
 
-    // cout<<lightObj3.angles[0]<<std::endl;
-    // cout<<lightObj3.angles[1]<<std::endl;
-    // cout<<lightObj3.angles[2]<<std::endl;
-    
     glutSwapBuffers();
 }
 
@@ -690,7 +676,7 @@ static void lightMenu(int id) {
 
     }
     /* Part I
-    * Adding extra menus for the second ligth
+    * Adding extra menus for the second light
     */
     else if (id == 80) {
          toolObj = 2;
@@ -703,7 +689,7 @@ static void lightMenu(int id) {
 
     }
     /* Part J 3
-    * Adding extra menus for the second ligth
+    * Adding extra menus for the spotlight
     */
     else if (id == 90) {
          toolObj = 3;
