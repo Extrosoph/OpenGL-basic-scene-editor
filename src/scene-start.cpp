@@ -341,7 +341,7 @@ static void duplicateObject(int id)
 //------Delete an object to the scene--------------------------------------------
 static void deleteObject(int id) {
     // Check if there is an object to delete
-    if (nObjects <= 4) {
+    if (nObjects <= 2) {
         // Do nothing
         return;
     }
@@ -418,7 +418,7 @@ void init(void) {
     *
     */
     addObject(55); // Sphere for the second light
-    sceneObjs[2].loc = vec4(2.0, 2.0, 2.0, 2.0);
+    sceneObjs[2].loc = vec4(2.0, 2.0, 1.0, 1.0);
     sceneObjs[2].scale = 0.2;
     sceneObjs[2].texId = 0; // Plain texture
     sceneObjs[2].brightness = 0.2; // The light's brightness is 5 times this (below).
@@ -427,12 +427,12 @@ void init(void) {
     /* Part J 3 adding extra object to store values for light 3
     *
     */
-    addObject(55); // Sphere for the second light
-    sceneObjs[3].loc = vec4(3.0, 3.0, 3.0, 3.0);
+    addObject(55); // Sphere for the third light
+    sceneObjs[3].loc = vec4(3.0, 1.0, 1.0, 1.0);
     sceneObjs[3].scale = 0.1;
     sceneObjs[3].texId = 0; // Plain texture
     sceneObjs[3].brightness = 0.2; // The light's brightness is 5 times this (below).
-    sceneObjs[3].angles[1] = 90.0;
+    // sceneObjs[3].angles[1] = 90.0;
 
     addObject(rand() % numMeshes); // A test mesh
 
@@ -545,6 +545,29 @@ void display(void) {
                 lightObj1.brightness);
     CheckError();
 
+    /* Part J  3
+    * Adding an extra light object for display
+    */
+    SceneObject lightObj3 = sceneObjs[3];
+    vec4 lightPosition3 = view * lightObj3.loc;
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition3"),
+                 1, lightPosition3);
+    CheckError();
+    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor3"),
+                 1, lightObj3.rgb);
+    CheckError();
+    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness3"),
+                lightObj3.brightness);
+    CheckError();
+
+    mat4 directionX = RotateX(lightObj3.angles[0]);
+    mat4 directionY = RotateY(lightObj3.angles[1]);
+    mat4 directionZ = RotateZ(lightObj3.angles[2]);
+    vec4 light3Dir = view * directionZ * directionY * directionX * vec4(0.0,1.0,0.0,0.0);
+    glUniform4fv(glGetUniformLocation(shaderProgram, "LightDirection"),
+                 1, light3Dir);
+    CheckError();
+
     /* Part I
     * Adding an extra light object for display
     */
@@ -559,22 +582,6 @@ void display(void) {
     CheckError();
     glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness2"),
                 lightObj2.brightness);
-    CheckError();
-
-    /* Part J  3
-    * Adding an extra light object for display
-    */
-    // mat4 origin_perspective = rotateY * rotateX;
-    SceneObject lightObj3 = sceneObjs[3];
-    vec4 lightPosition3 = view * lightObj3.loc;
-    glUniform4fv(glGetUniformLocation(shaderProgram, "LightPosition3"),
-                 1, lightPosition3);
-    CheckError();
-    glUniform3fv(glGetUniformLocation(shaderProgram, "LightColor3"),
-                 1, lightObj3.rgb);
-    CheckError();
-    glUniform1f(glGetUniformLocation(shaderProgram, "LightBrightness3"),
-                lightObj3.brightness);
     CheckError();
 
     for (int i = 0; i < nObjects; i++) {
@@ -592,6 +599,10 @@ void display(void) {
         drawMesh(sceneObjs[i]);
     }
 
+    // cout<<lightObj3.angles[0]<<std::endl;
+    // cout<<lightObj3.angles[1]<<std::endl;
+    // cout<<lightObj3.angles[2]<<std::endl;
+    
     glutSwapBuffers();
 }
 
@@ -656,6 +667,16 @@ static void adjustSpecularShine(vec2 ss){
 	sceneObjs[toolObj].shine += ss[1];
 }
 
+static void adjustAngleYX(vec2 angle_yx) {
+    sceneObjs[currObject].angles[1] += angle_yx[0];
+    sceneObjs[currObject].angles[0] += angle_yx[1];
+}
+
+static void adjustAngleYX_spot(vec2 angle_yx) {
+    sceneObjs[3].angles[1] += angle_yx[0];
+    sceneObjs[3].angles[0] += angle_yx[1];
+}
+
 static void lightMenu(int id) {
     deactivateTool();
     if (id == 70) {
@@ -693,7 +714,13 @@ static void lightMenu(int id) {
         setToolCallbacks(adjustRedGreen, mat2(1.0, 0, 0, 1.0),
                          adjustBlueBrightness, mat2(1.0, 0, 0, 1.0));
 
-    } 	else {
+    }
+    else if (id == 95)  {
+        toolObj = 3;
+        setToolCallbacks(adjustAngleYX_spot, mat2(400, 0, 0, -400),
+                         adjustBrightnessY, mat2(1.0, 0.0, 0.0, 10.0));
+    }
+     	else {
         printf("Error in lightMenu\n");
         exit(1);
     }
@@ -751,10 +778,7 @@ static void materialMenu(int id) {
     }
 }
 
-static void adjustAngleYX(vec2 angle_yx) {
-    sceneObjs[currObject].angles[1] += angle_yx[0];
-    sceneObjs[currObject].angles[0] += angle_yx[1];
-}
+
 
 static void adjustAngleZTexscale(vec2 az_ts) {
     sceneObjs[currObject].angles[2] += az_ts[0];
@@ -806,6 +830,7 @@ static void makeMenu() {
     glutAddMenuEntry("R/G/B/All Light 2", 81);
     glutAddMenuEntry("Move Light 3", 90);
     glutAddMenuEntry("R/G/B/All Light 3", 91);
+    glutAddMenuEntry("Direction  Light 3", 95);
 
     glutCreateMenu(mainmenu);
     glutAddMenuEntry("Rotate/Move Camera", 50);
