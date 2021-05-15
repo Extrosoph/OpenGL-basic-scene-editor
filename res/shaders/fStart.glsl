@@ -90,17 +90,24 @@ void main()
     color.rgb = globalAmbient + (( diffuse +  ambient) * reduction) + diffuse2 + ambient2;
 	color.a = 1.0;
 
+
     vec3 dL = normalize(LightDirection.xyz);
     //angle = (max(angle, 0.0));
     vec4 color3;
-    if(dot(L3, dL) < 0.2)
+    if(dot(L3, dL) < 0.5)
     {
         ambient3 = vec3(0.0, 0.0, 0.0);
         diffuse3 = vec3(0.0, 0.0, 0.0);
         specular3 = vec3(0.0, 0.0, 0.0);
     }
-    color3.rgb = diffuse3 + ambient3;
-	color.a = 1.0;
+
+    // Distance light reduction for light 3
+    float d3 = length(Lvec3);
+    float b3 = 0.1;
+    float c3 = 0.1;
+    float reduction3 = 1.0 / (1.0 + (b3 * d3) + (c3 * d3 * d3));
+    color3.rgb = (diffuse3 + ambient3) * reduction3;
+	color3.a = 1.0;
 
     color = color + color3;
 
@@ -108,5 +115,5 @@ void main()
     * https://stackoverflow.com/questions/35917678/opengl-lighting-specular-higlight-is-colored
     */
 
-    gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4((specular * reduction), 0.0) + vec4(specular2, 0.0);
+    gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4((specular * reduction), 0.0) + vec4(specular2, 0.0) + vec4(specular3, 0.0);
 }
