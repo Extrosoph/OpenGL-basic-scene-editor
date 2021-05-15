@@ -473,12 +473,6 @@ void drawMesh(SceneObject sceneObj) {
     * Order of transformation does not matter
     */
 
-    // Rotating the model by using built in function specified in mat.h which refers to lab 5.
-    // Here we use object slicing and swizzling which uses the indexing of array using [] and selection (.) operator refer to lecture 5 pg 30.
-    // each object has angles for x,y,z and we use the rotation matrix from mat.h to transform at each specific angle.
-    // angle[0] is x, angle[1] is y and angle[2] is z
-    // Order of transformation does not matter
-
     mat4 rotate = RotateX(sceneObj.angles[0]) *  RotateY(sceneObj.angles[1]) * RotateZ(sceneObj.angles[2]);
     mat4 model = Translate(sceneObj.loc) * Scale(sceneObj.scale) * rotate;
 
