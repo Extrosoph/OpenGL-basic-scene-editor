@@ -341,7 +341,7 @@ static void duplicateObject(int id)
 //------Delete an object to the scene--------------------------------------------
 static void deleteObject(int id) {
     // Check if there is an object to delete
-    if (nObjects <= 2) {
+    if (nObjects <= 4) {
         // Do nothing
         return;
     }
