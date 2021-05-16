@@ -111,5 +111,9 @@ void main()
     * https://stackoverflow.com/questions/35917678/opengl-lighting-specular-higlight-is-colored
     */
 
+    /*
+    * Part B for changing scale
+    */
+
     gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4((specular * reduction), 0.0) + vec4(specular2, 0.0) + vec4(specular3, 0.0);
 }
