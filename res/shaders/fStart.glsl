@@ -112,8 +112,7 @@ void main()
     */
 
     /*
-    * Part B for changing scale
+    * Part B for changing texture scale
     */
-
-    gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4((specular * reduction), 0.0) + vec4(specular2, 0.0) + vec4(specular3, 0.0);
+    gl_FragColor = color * texture2D( texture, texCoord * texScale) + vec4((specular * reduction), 0.0) + vec4(specular2, 0.0) + vec4((specular3 * reduction3), 0.0);
 }
