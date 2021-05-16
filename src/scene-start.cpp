@@ -311,7 +311,7 @@ static void duplicateObject(int id)
 
         // Set the values that should be the same from the previous object
         sceneObjs[currObject].scale = sceneObjs[id].scale;
-        sceneObjs[currObject].loc = sceneObjs[id].loc;
+        sceneObjs[currObject].loc = sceneObjs[id].loc+0.1;
         sceneObjs[currObject].texId = sceneObjs[id].texId;
 
         sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
