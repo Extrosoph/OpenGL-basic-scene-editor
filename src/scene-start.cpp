@@ -313,6 +313,7 @@ static void duplicateObject(int id)
         sceneObjs[currObject].scale = sceneObjs[id].scale;
         sceneObjs[currObject].loc = sceneObjs[id].loc+0.1;
         sceneObjs[currObject].texId = sceneObjs[id].texId;
+        sceneObjs[currObject].texScale = sceneObjs[id].texScale;
 
         sceneObjs[currObject].rgb[0] = sceneObjs[id].rgb[0];
         sceneObjs[currObject].rgb[1] = sceneObjs[id].rgb[1];
